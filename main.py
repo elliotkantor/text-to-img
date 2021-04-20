@@ -4,11 +4,12 @@ import numpy as np
 import random
 from pathlib import Path
 import glob
+import sys
 
 
 def get_fonts():
     fonts = []
-    expressions = ["SF-Pro-Display*", "SourceCodePro*"]
+    expressions = ["SF-Pro-Display*"]
     for e in expressions:
         fonts.extend(glob.glob("/library/Fonts/" + e))
     return fonts
@@ -17,7 +18,6 @@ def get_fonts():
 LINE_LENGTH = 20
 IMAGE_WIDTH, IMAGE_HEIGHT = (1000, 1000)
 FONTS = get_fonts()
-FONT_PATHS = [Path("/library/Fonts") / Path(f) for f in FONTS]
 
 
 def make_image(text, filepath=None, custom_color=None, custom_font=None):
@@ -47,7 +47,7 @@ def make_image(text, filepath=None, custom_color=None, custom_font=None):
         fg_color = custom_color
 
     # get font family
-    fnt_family = custom_font if custom_font else str(random.choice(FONT_PATHS))
+    fnt_family = custom_font if custom_font else str(random.choice(FONTS))
 
     # scale text based on ratio
     while (
@@ -82,4 +82,7 @@ def demo():
 
 
 if __name__ == "__main__":
-    demo()
+    if len(sys.argv) == 1:
+        demo()
+    elif len(sys.argv) == 2:
+        make_image(sys.argv[-1], filepath="img.png")
