@@ -1,19 +1,26 @@
 import textwrap
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
+import random
+from pathlib import Path
+import glob
+
+
+def get_fonts():
+    fonts = []
+    expressions = ["SF-Pro-Display*", "SourceCodePro*"]
+    for e in expressions:
+        fonts.extend(glob.glob("/library/Fonts/" + e))
+    return fonts
+
 
 LINE_LENGTH = 20
 IMAGE_WIDTH, IMAGE_HEIGHT = (1000, 1000)
+FONTS = get_fonts()
+FONT_PATHS = [Path("/library/Fonts") / Path(f) for f in FONTS]
 
 
-def get_quote():
-    # TODO: get random quote
-    quote = "This is a quote in a picture"
-    formatted = "\n".join(textwrap.wrap(quote, LINE_LENGTH))
-    return formatted
-
-
-def make_image(text, filepath=None, custom_color=None):
+def make_image(text, filepath=None, custom_color=None, custom_font=None):
 
     """
     Creates a plain image based on text.
@@ -21,6 +28,8 @@ def make_image(text, filepath=None, custom_color=None):
     if empty, won't save
     custom_color: tuple len 3 -> color in RGB
     if empty, random color
+    custom_font: str -> path to font
+    if empty, random font
     """
 
     def avg(t):
@@ -37,13 +46,16 @@ def make_image(text, filepath=None, custom_color=None):
     else:
         fg_color = custom_color
 
+    # get font family
+    fnt_family = custom_font if custom_font else str(random.choice(FONT_PATHS))
+
     # scale text based on ratio
     while (
         text_width > FNT_RATIO * IMAGE_WIDTH or text_height > FNT_RATIO * IMAGE_HEIGHT
     ):
 
         img = Image.new("RGB", (IMAGE_WIDTH, IMAGE_HEIGHT), color=bg_color)
-        fnt = ImageFont.truetype("/Library/Fonts/Arial.ttf", fnt_size)
+        fnt = ImageFont.truetype(fnt_family, fnt_size)
         text_canvas = ImageDraw.Draw(img)
 
         # calculate text size for scaling
@@ -63,12 +75,11 @@ def make_image(text, filepath=None, custom_color=None):
     return img, saved
 
 
-def main():
-    text = get_quote()
-    img, saved = make_image(text)
+def demo():
+    img, saved = make_image("This is some test text.")
     if not saved:
         img.save("img.png")
 
 
 if __name__ == "__main__":
-    main()
+    demo()
